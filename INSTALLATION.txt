@@ -1,0 +1,45 @@
+Phlick by Phragma - installation
+================================
+
+macOS (Apple Silicon et Intel, macOS 10.13 ou plus recent)
+----------------------------------------------------------
+1. Copie "Phlick.vst3" dans :
+       ~/Library/Audio/Plug-Ins/VST3/
+   Ne garde qu'UNE copie du plugin.
+2. Le plugin n'est pas notarise par Apple : dans l'app Terminal,
+       xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/Phlick.vst3
+3. Relance ton DAW et rescanne les plugins.
+
+Windows (64 bits)
+-----------------
+1. Copie le DOSSIER "Phlick.vst3" dans C:\Program Files\Common Files\VST3\
+2. Relance ton DAW et rescanne les plugins.
+
+
+Utilisation
+-----------
+Phlick repere les transitoires (les montees d'energie soudaines, zone de frequence
+par zone de frequence) et les creuse (CUT) ou les remonte (BOOST), uniquement la ou
+ils ont lieu. Le reste du son n'est pas touche, quel que soit le niveau d'entree.
+
+TRANSIENTS CUT / BOOST, DEPTH (une valeur par mode), SENSITIVITY (haut = reagit
+           aussi aux petits coups), SHARPNESS (bas = large bande, comme un transient
+           shaper classique ; haut = etroit), WINDOW (SHORT pour les clics tres
+           rapides, LONG pour les sons riches), PHASE (MINIMUM : pas de pre-echo).
+DECAY      Temps de retour (0 = seulement l'attaque). LF / HF : bas = graves plus
+           longs, haut = aigus plus longs (pivot a 1 kHz).
+ECRAN      Coupes en bleu (du haut), bosses en lilas (du bas), courbe de sensibilite
+           en blanc. Glisser un noeud : frequence et sensibilite. Cmd/Ctrl : Q.
+           Alt + clic : ecoute de la bande. Double-clic : bande on/off.
+BANDE      Une bande montee augmente DEPTH dans sa zone, baissee la diminue ;
+           LOW CUT / HIGH CUT et REJECT excluent une zone.
+STEREO     L/R ou M/S, LINK, BALANCE.
+QUALITY    OVERSAMPLE et RESOLUTION, en temps reel et pour le rendu hors ligne.
+SIDECHAIN  La detection ecoute l'entree sidechain ; LISTEN pour l'entendre.
+OUTPUT     MIX, TRIM (sur le signal traite), DELTA, BYPASS.
+
+Pour couper : mets Phlick en fin de chaine. Pour booster : avant compresseurs,
+limiteurs et saturations.
+
+Latence : 2048 echantillons jusqu'a 64 kHz (4096 a 96 kHz, 8192 a 192 kHz),
+quelle que soit la fenetre.
