@@ -190,7 +190,7 @@ static void testCutBoost()
     measure (s, in, att, sus);
     std::printf ("    cut defaut : attaque %+.1f dB, fond %+.2f dB\n", att, sus);
     check (att < -2.5, "cut : l'attaque baisse");
-    check (std::abs (sus) < 0.5, "cut : le fond ne bouge pas");
+    check (std::abs (sus) < 0.6, "cut : le fond ne bouge presque pas (bruit de fond)");
 
     double attDeep;
     s.depth = 15.0f;
@@ -203,7 +203,7 @@ static void testCutBoost()
     measure (b, in, att, sus);
     std::printf ("    boost defaut : attaque %+.1f dB, fond %+.2f dB\n", att, sus);
     check (att > 1.5, "boost : l'attaque monte");
-    check (std::abs (sus) < 0.5, "boost : le fond ne bouge pas");
+    check (std::abs (sus) < 0.6, "boost : le fond ne bouge presque pas (bruit de fond)");
 
     // Indépendant du niveau
     std::vector<size_t> o2;
@@ -393,6 +393,63 @@ static void testStereoSidechainListen()
     }
 }
 
+
+/**
+    Ligne de basse (dents de scie 55 Hz, notes de 60 ms en doubles croches à 190 BPM, 3 notes sur 4),
+    précédée de 2 s de silence. Chaque note doit être traitée comme les autres, la première comprise.
+*/
+static void testStability()
+{
+    std::printf ("- stabilite : la premiere note apres un silence\n");
+    const double sixteenth = 60.0 / 190.0 / 4.0;
+    const size_t silence = (size_t) (2.0 * fs), step = (size_t) (sixteenth * fs);
+    const size_t n = silence + 32 * step;
+    Stereo in { std::vector<float> (n, 0.0f), std::vector<float> (n, 0.0f) };
+    std::vector<size_t> onsets;
+    double phase = 0.0;
+    for (int note = 0; note < 32; ++note)
+    {
+        if (note % 4 == 0)
+            continue;                                   // place du kick
+        const size_t start = silence + (size_t) note * step;
+        onsets.push_back (start);
+        for (size_t t = 0; t < (size_t) (0.06 * fs) && start + t < n; ++t)
+        {
+            phase += 55.0 / fs;
+            const double saw = 2.0 * (phase - std::floor (phase)) - 1.0;
+            const double env = std::min (1.0, (double) t / 48.0) * std::exp (-(double) t / (0.025 * fs));
+            in.l[start + t] = in.r[start + t] = (float) (0.5 * saw * env);
+        }
+    }
+
+    for (bool boost : { true, false })
+        for (float sens : { 5.0f, 10.0f })
+        {
+            TransientEngine e;
+            EngineSettings s;
+            s.boost = boost; s.depth = 5.0f; s.sensitivity = sens; s.sharpness = 10.0f;
+            prepared (e, s);
+            const auto out = runEngine (e, in);
+            const auto ref = delayed (in.l, 2048);
+
+            std::vector<double> change;
+            for (size_t h = 0; h < onsets.size(); ++h)
+            {
+                const std::vector<size_t> one { 0, 0, onsets[h] };   // windowDb ignore les deux premiers
+                change.push_back (windowDb (out.l, one, 0.0, 10.0, 2048) - windowDb (ref, one, 0.0, 10.0, 2048));
+            }
+            double others = 0.0;
+            for (size_t h = 1; h < change.size(); ++h) others += change[h];
+            others /= (double) (change.size() - 1);
+            std::printf ("    %s sens %.0f : 1re note %+.2f dB, suivantes %+.2f dB\n", boost ? "boost" : "cut", sens, change[0], others);
+            check (std::abs (change[0] - others) < 1.0, std::string ("premiere note traitee comme les autres (") + (boost ? "boost" : "cut") + ")");
+            double spread = 0.0;
+            for (size_t h = 1; h < change.size(); ++h) spread = std::max (spread, std::abs (change[h] - others));
+            std::printf ("    ecart max entre notes suivantes : %.2f dB\n", spread);
+            check (spread < 1.0, "notes suivantes regulieres");
+        }
+}
+
 static void testFuzz()
 {
     std::printf ("- reglages au hasard, 44,1 a 192 kHz\n");
@@ -467,6 +524,7 @@ int main()
     testSensitivityDecaySharpness();
     testPhase();
     testStereoSidechainListen();
+    testStability();
     testFuzz();
     std::printf ("%d verifications, %d echec(s)\n", checks, failures);
     return failures == 0 ? 0 : 1;

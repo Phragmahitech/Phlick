@@ -485,7 +485,7 @@ private:
 
     /**
         Traitement voulu (dB, positif) pour un niveau lissé lev et son fond fl.
-        Met à jour le fond.
+        Met à jour le fond. La montée est saturée : la réaction ne dépend pas de la profondeur du silence d'avant.
     */
     void detect (const float* lev, float* fl, const float* mul, const float* w, float* out) noexcept
     {
@@ -496,8 +496,13 @@ private:
 
         const float threshold = 14.0f - 1.2f * sens;            // montée minimale : 14 dB (0) .. 2 dB (10)
         const float knee = 3.0f;
-        // v1.1 : environ 3 fois plus doux que v1.0 (0,09 · d · (1 + 1,5 (d/20)²)), et le boost encore un tiers en dessous
-        const float gain = 0.022f * depth * (1.0f + 3.0f * (depth / 20.0f) * (depth / 20.0f)) * (s.boost ? 0.65f : 1.0f);
+        // La montée utile sature (8 dB au-dessus du seuil) : une note qui part du silence et une note
+        // qui suit une autre note de près sont traitées pareil (sinon la première note après une pause,
+        // qui monte depuis un fond quasi nul, prend le maximum).
+        const float range = 8.0f;
+        // v1.1 : environ 3 fois plus doux que v1.0, le boost encore un tiers en dessous.
+        // v1.1.1 : × 2 pour compenser la saturation (même réaction qu'en v1.1 sur un coup moyen).
+        const float gain = 0.045f * depth * (1.0f + 3.0f * (depth / 20.0f) * (depth / 20.0f)) * (s.boost ? 0.65f : 1.0f);
         const float cap = s.boost ? maxBoostDb : maxCutDb;
         const float spreadOct = 8.0f * std::exp (-0.45f * sharp);   // 8 octaves (0, quasi large bande) .. 0,09 (10)
         const float os = (float) M / (float) N;
@@ -518,6 +523,7 @@ private:
             if (x <= -0.5f * knee)      r = 0.0f;
             else if (x >= 0.5f * knee)  r = x;
             else                        r = (x + 0.5f * knee) * (x + 0.5f * knee) / (2.0f * knee);
+            r = range * std::tanh (r / range);
 
             const float g = std::clamp ((lev[k] - gateDb) / 10.0f, 0.0f, 1.0f);
             temp[(size_t) k] = std::min (cap, r * gain * mul[k]) * g * w[k];
