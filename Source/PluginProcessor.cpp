@@ -82,8 +82,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout PhlickAudioProcessor::create
 
     // Principal
     add (std::make_unique<juce::AudioParameterChoice> (juce::ParameterID { modeId, 1 }, "Mode", juce::StringArray { "CUT", "BOOST" }, 0));
-    add (floatParam (depthCutId, "Depth Cut", { 0.0f, 20.0f, 0.01f }, 5.0f, oneDecimal));
-    add (floatParam (depthBoostId, "Depth Boost", { 0.0f, 20.0f, 0.01f }, 5.0f, oneDecimal));
+    add (floatParam (depthCutId, "Depth Cut", { 0.0f, 20.0f, 0.01f }, 8.0f, oneDecimal));
+    add (floatParam (depthBoostId, "Depth Boost", { 0.0f, 20.0f, 0.01f }, 8.0f, oneDecimal));
     add (floatParam (sensitivityId, "Sensitivity", { 0.0f, 10.0f, 0.01f }, 5.0f, oneDecimal));
     add (floatParam (sharpnessId, "Sharpness", { 0.0f, 10.0f, 0.01f }, 3.0f, oneDecimal));
 
@@ -157,20 +157,20 @@ namespace
     {
         static const std::vector<FactoryPreset> list {
             { "DEFAULT", {} },
-            { "MOUTH CLICKS", { { "depthCut", 8.0f }, { "sensitivity", 7.0f }, { "sharpness", 6.0f }, { "decay", 0.5f }, { "window", 0.0f },
+            { "MOUTH CLICKS", { { "depthCut", 13.0f }, { "sensitivity", 7.0f }, { "sharpness", 6.0f }, { "decay", 0.5f }, { "window", 0.0f },
                                 { "lowCut", 1.0f }, { "lowCutFreq", 1500.0f }, { "lowCutSlope", 2.0f }, { "b3Freq", 4500.0f }, { "b3Sens", 6.0f } } },
-            { "PLOSIVES", { { "depthCut", 9.0f }, { "sensitivity", 6.0f }, { "sharpness", 1.0f }, { "decay", 3.0f }, { "decayTilt", 2.0f }, { "phase", 1.0f },
+            { "PLOSIVES", { { "depthCut", 14.0f }, { "sensitivity", 6.0f }, { "sharpness", 1.0f }, { "decay", 3.0f }, { "decayTilt", 2.0f }, { "phase", 1.0f },
                             { "highCut", 1.0f }, { "highCutFreq", 300.0f }, { "highCutSlope", 2.0f } } },
-            { "SOFT PICK", { { "depthCut", 6.0f }, { "sensitivity", 5.0f }, { "sharpness", 4.0f }, { "decay", 1.5f },
+            { "SOFT PICK", { { "depthCut", 10.0f }, { "sensitivity", 5.0f }, { "sharpness", 4.0f }, { "decay", 1.5f },
                              { "lowCut", 1.0f }, { "lowCutFreq", 1200.0f }, { "highCut", 1.0f }, { "highCutFreq", 9000.0f } } },
-            { "TAME HATS", { { "depthCut", 7.0f }, { "sensitivity", 6.0f }, { "sharpness", 2.0f }, { "decay", 1.0f }, { "window", 0.0f },
+            { "TAME HATS", { { "depthCut", 11.0f }, { "sensitivity", 6.0f }, { "sharpness", 2.0f }, { "decay", 1.0f }, { "window", 0.0f },
                              { "lowCut", 1.0f }, { "lowCutFreq", 5000.0f }, { "lowCutSlope", 2.0f } } },
-            { "DRUM PUNCH", { { "mode", 1.0f }, { "depthBoost", 6.0f }, { "sensitivity", 5.0f }, { "sharpness", 1.0f }, { "decay", 2.0f }, { "phase", 1.0f } } },
-            { "KICK BAM", { { "mode", 1.0f }, { "depthBoost", 7.0f }, { "sensitivity", 4.0f }, { "sharpness", 2.0f }, { "decay", 2.5f }, { "decayTilt", 3.0f },
+            { "DRUM PUNCH", { { "mode", 1.0f }, { "depthBoost", 10.0f }, { "sensitivity", 5.0f }, { "sharpness", 1.0f }, { "decay", 2.0f }, { "phase", 1.0f } } },
+            { "KICK BAM", { { "mode", 1.0f }, { "depthBoost", 11.0f }, { "sensitivity", 4.0f }, { "sharpness", 2.0f }, { "decay", 2.5f }, { "decayTilt", 3.0f },
                             { "phase", 1.0f }, { "highCut", 1.0f }, { "highCutFreq", 4000.0f }, { "b1Freq", 2500.0f }, { "b1Sens", 6.0f } } },
-            { "MASTER DYNAMICS", { { "mode", 1.0f }, { "depthBoost", 4.0f }, { "sensitivity", 5.0f }, { "sharpness", 0.0f }, { "decay", 2.0f },
+            { "MASTER DYNAMICS", { { "mode", 1.0f }, { "depthBoost", 6.0f }, { "sensitivity", 5.0f }, { "sharpness", 0.0f }, { "decay", 2.0f },
                                    { "mix", 50.0f }, { "phase", 1.0f }, { "resolution", 2.0f } } },
-            { "FRETLESS BASS", { { "depthCut", 10.0f }, { "sensitivity", 6.0f }, { "sharpness", 3.0f }, { "decay", 5.0f }, { "decayTilt", 7.0f }, { "window", 2.0f },
+            { "FRETLESS BASS", { { "depthCut", 15.0f }, { "sensitivity", 6.0f }, { "sharpness", 3.0f }, { "decay", 5.0f }, { "decayTilt", 7.0f }, { "window", 2.0f },
                                  { "highCut", 1.0f }, { "highCutFreq", 6000.0f } } },
         };
         return list;

@@ -278,7 +278,7 @@ static void testSensitivityDecaySharpness()
     {
         TransientEngine e;
         EngineSettings s;
-        s.sharpness = sharp; s.depth = 10.0f;
+        s.sharpness = sharp; s.depth = 20.0f;   // v1.1 : courbe de depth plus douce
         prepared (e, s);
         const auto out = runEngine (e, tonal);
         return toneDb (out.l, o3, 0.0, 30.0, 2048, 300.0) - toneDb (r3, o3, 0.0, 30.0, 2048, 300.0);

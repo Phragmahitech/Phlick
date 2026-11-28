@@ -43,7 +43,7 @@ using phocus::BandSpec;
 struct EngineSettings
 {
     bool boost = false;
-    float depth = 5.0f;           // 0 .. 20 (celle du mode choisi)
+    float depth = 8.0f;           // 0 .. 20 (celle du mode choisi)
     float sensitivity = 5.0f;     // 0 .. 10
     float sharpness = 3.0f;       // 0 .. 10
     float decay = 3.0f;           // 0 .. 10
@@ -92,7 +92,7 @@ class TransientEngine
 public:
     static constexpr int maxChannels = 2;
     static constexpr int displayPoints = 256;
-    static constexpr float maxCutDb = 40.0f, maxBoostDb = 18.0f;
+    static constexpr float maxCutDb = 30.0f, maxBoostDb = 12.0f;
     static constexpr float displayMinHz = 20.0f, displayMaxHz = 20000.0f;
 
     static int rateFactor (double sampleRate) noexcept
@@ -496,7 +496,8 @@ private:
 
         const float threshold = 14.0f - 1.2f * sens;            // montée minimale : 14 dB (0) .. 2 dB (10)
         const float knee = 3.0f;
-        const float gain = 0.09f * depth * (1.0f + 1.5f * (depth / 20.0f) * (depth / 20.0f));
+        // v1.1 : environ 3 fois plus doux que v1.0 (0,09 · d · (1 + 1,5 (d/20)²)), et le boost encore un tiers en dessous
+        const float gain = 0.022f * depth * (1.0f + 3.0f * (depth / 20.0f) * (depth / 20.0f)) * (s.boost ? 0.65f : 1.0f);
         const float cap = s.boost ? maxBoostDb : maxCutDb;
         const float spreadOct = 8.0f * std::exp (-0.45f * sharp);   // 8 octaves (0, quasi large bande) .. 0,09 (10)
         const float os = (float) M / (float) N;

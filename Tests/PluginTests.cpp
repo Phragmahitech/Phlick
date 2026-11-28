@@ -174,7 +174,8 @@ static void testProcessing()
         std::cout << "    cut : attaque " << att << " dB, fond " << bg << " dB" << std::endl;
         check (att < -2.5, "CUT reduit l'attaque");
         check (std::abs (bg) < 0.6, "CUT laisse le fond");
-        check (asPhlick (*p).getPeakReduction() > 1.0f, "traitement affiche");
+        std::cout << "    reduction affichee " << asPhlick (*p).getPeakReduction() << " dB" << std::endl;
+        check (asPhlick (*p).getPeakReduction() > 0.5f, "traitement affiche");
 
         auto q = makePlugin();
         setParam (*q, Ids::modeId, 1.0f);
@@ -338,22 +339,22 @@ static void testHistory()
     };
 
     check (! ph.canUndo(), "historique vide au depart");
-    turn (depth, 8.0f);
+    turn (depth, 10.0f);
     turn (depth, 12.0f);
     check (ph.canUndo(), "historique apres un reglage");
     ph.undo();
-    check (std::abs (getParam (*p, Ids::depthCutId) - 8.0f) < 0.02f, "annuler : depth 8");
+    check (std::abs (getParam (*p, Ids::depthCutId) - 10.0f) < 0.02f, "annuler : depth 10");
     ph.undo();
-    check (std::abs (getParam (*p, Ids::depthCutId) - 5.0f) < 0.02f, "annuler : depth 5");
+    check (std::abs (getParam (*p, Ids::depthCutId) - 8.0f) < 0.02f, "annuler : depth 8 (defaut)");
     ph.redo();
-    check (std::abs (getParam (*p, Ids::depthCutId) - 8.0f) < 0.02f, "retablir : depth 8");
+    check (std::abs (getParam (*p, Ids::depthCutId) - 10.0f) < 0.02f, "retablir : depth 10");
 
     // A / B
     ph.switchAb();                                    // B = copie de A
     check (ph.getAbSlot() == 1, "slot B");
     turn (depth, 2.0f);
     ph.switchAb();
-    check (std::abs (getParam (*p, Ids::depthCutId) - 8.0f) < 0.02f, "retour en A");
+    check (std::abs (getParam (*p, Ids::depthCutId) - 10.0f) < 0.02f, "retour en A");
     ph.switchAb();
     check (std::abs (getParam (*p, Ids::depthCutId) - 2.0f) < 0.02f, "B garde son reglage");
 
@@ -365,7 +366,7 @@ static void testHistory()
     check (asPhlick (*q).getAbSlot() == 1, "etat : slot B");
     check (std::abs (getParam (*q, Ids::depthCutId) - 2.0f) < 0.02f, "etat : depth");
     asPhlick (*q).switchAb();
-    check (std::abs (getParam (*q, Ids::depthCutId) - 8.0f) < 0.02f, "etat : A recharge");
+    check (std::abs (getParam (*q, Ids::depthCutId) - 10.0f) < 0.02f, "etat : A recharge");
 
     // Le delta et le bypass ne sont pas dans l'historique
     turn (ph.apvts.getParameter (Ids::deltaId), 1.0f);
@@ -374,7 +375,7 @@ static void testHistory()
 
     // États abîmés
     q->setStateInformation ("nimporte", 8);
-    check (std::abs (getParam (*q, Ids::depthCutId) - 8.0f) < 0.02f, "etat invalide ignore");
+    check (std::abs (getParam (*q, Ids::depthCutId) - 10.0f) < 0.02f, "etat invalide ignore");
 
     // Points de départ d'usine
     check (Ids::getNumFactoryPresets() == 9, "9 points de depart");
@@ -476,7 +477,7 @@ static void testEditor (const juce::File& outputDir)
         check (getParam (*p, Ids::modeId) > 0.5f, "bouton BOOST");
         if (depthKnob != nullptr)
         {
-            check (std::abs (depthKnob->getValue() - 5.0) < 0.02, "DEPTH affiche la valeur BOOST");
+            check (std::abs (depthKnob->getValue() - 8.0) < 0.02, "DEPTH affiche la valeur BOOST");
             depthKnob->setValue (3.0, juce::sendNotificationSync);
             check (std::abs (getParam (*p, Ids::depthBoostId) - 3.0f) < 0.02f, "DEPTH en BOOST");
             check (std::abs (getParam (*p, Ids::depthCutId) - 7.0f) < 0.02f, "DEPTH CUT garde sa valeur");

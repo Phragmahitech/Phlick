@@ -11,7 +11,7 @@ PhlickLookAndFeel::PhlickLookAndFeel()
     semiBoldFace = juce::Typeface::createSystemTypefaceFor (BinaryData::ChakraPetchSemiBold_ttf, (size_t) BinaryData::ChakraPetchSemiBold_ttfSize);
     boldFace = juce::Typeface::createSystemTypefaceFor (BinaryData::ChakraPetchBold_ttf, (size_t) BinaryData::ChakraPetchBold_ttfSize);
 
-    setColour (juce::PopupMenu::backgroundColourId, juce::Colour (0xff142229));
+    setColour (juce::PopupMenu::backgroundColourId, juce::Colour (0xff24363e));
     setColour (juce::PopupMenu::textColourId, text());
     setColour (juce::PopupMenu::highlightedBackgroundColourId, accent());
 }
@@ -53,12 +53,12 @@ juce::Path PhlickLookAndFeel::chamfered (juce::Rectangle<float> r, float cut)
 void PhlickLookAndFeel::drawPanel (juce::Graphics& g, juce::Rectangle<float> r, const juce::String& title, const juce::Font& f)
 {
     const auto shape = chamfered (r, 8.0f);
-    juce::DropShadow (juce::Colours::black.withAlpha (0.45f), 10, { 0, 3 }).drawForPath (g, shape);
+    juce::DropShadow (juce::Colours::black.withAlpha (0.28f), 14, { 0, 4 }).drawForPath (g, shape);
     g.setGradientFill (juce::ColourGradient (panelTop(), 0.0f, r.getY(), panelBottom(), 0.0f, r.getBottom(), false));
     g.fillPath (shape);
-    g.setColour (edge());
-    g.strokePath (shape, juce::PathStrokeType (1.0f));
-    g.setColour (juce::Colours::white.withAlpha (0.06f));
+    g.setColour (edge().withAlpha (0.8f));
+    g.strokePath (shape, juce::PathStrokeType (0.6f));
+    g.setColour (juce::Colours::white.withAlpha (0.10f));
     g.drawHorizontalLine ((int) r.getY() + 1, r.getX() + 8.0f, r.getRight() - 8.0f);
 
     if (title.isNotEmpty())
@@ -95,12 +95,12 @@ void PhlickLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int w
     const float radius = juce::jmin (area.getWidth(), area.getHeight()) * 0.5f - (big ? 6.0f : 3.0f);
     const auto c = area.getCentre();
     const float arcR = radius, bodyR = radius - (big ? 10.0f : 5.5f);
-    const float thick = big ? 6.0f : 3.5f;
+    const float thick = big ? 2.6f : 1.6f;   // traits fins
 
     // Piste
     juce::Path track;
     track.addCentredArc (c.x, c.y, arcR, arcR, 0.0f, start, end, true);
-    g.setColour (juce::Colour (0xff081014));
+    g.setColour (juce::Colour (0xff1a2930));
     g.strokePath (track, juce::PathStrokeType (thick, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 
     // Valeur (dégradé orange -> mauve ; depuis le centre pour les réglages bipolaires)
@@ -120,18 +120,18 @@ void PhlickLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int w
     }
 
     // Corps : anneau cuivre, centre turquoise sombre
-    juce::DropShadow (juce::Colours::black.withAlpha (0.6f), big ? 12 : 6, { 0, big ? 4 : 2 })
+    juce::DropShadow (juce::Colours::black.withAlpha (0.35f), big ? 14 : 7, { 0, big ? 4 : 2 })
         .drawForPath (g, [&] { juce::Path p; p.addEllipse (juce::Rectangle<float> (bodyR * 2.0f, bodyR * 2.0f).withCentre (c)); return p; }());
-    g.setGradientFill (juce::ColourGradient (juce::Colour (0xff2a3f4a), c.x, c.y - bodyR, juce::Colour (0xff111c22), c.x, c.y + bodyR, false));
+    g.setGradientFill (juce::ColourGradient (juce::Colour (0xff4f6873), c.x, c.y - bodyR, juce::Colour (0xff2a3c44), c.x, c.y + bodyR, false));
     g.fillEllipse (juce::Rectangle<float> (bodyR * 2.0f, bodyR * 2.0f).withCentre (c));
     g.setColour (lilac().withAlpha (enabled ? 0.85f : 0.35f));
-    g.drawEllipse (juce::Rectangle<float> (bodyR * 2.0f, bodyR * 2.0f).withCentre (c), big ? 1.6f : 1.0f);
+    g.drawEllipse (juce::Rectangle<float> (bodyR * 2.0f, bodyR * 2.0f).withCentre (c), big ? 0.9f : 0.6f);
 
     // Index
     const auto tip = c.getPointOnCircumference (bodyR - (big ? 6.0f : 3.0f), angle);
     const auto base = c.getPointOnCircumference (bodyR * (big ? 0.35f : 0.25f), angle);
     g.setColour (enabled ? text() : text().withAlpha (0.35f));
-    g.drawLine ({ base, tip }, big ? 3.0f : 1.8f);
+    g.drawLine ({ base, tip }, big ? 1.6f : 1.1f);
 }
 
 void PhlickLookAndFeel::drawButtonBackground (juce::Graphics& g, juce::Button& b, const juce::Colour&, bool over, bool down)
@@ -146,15 +146,15 @@ void PhlickLookAndFeel::drawButtonBackground (juce::Graphics& g, juce::Button& b
         juce::ColourGradient grad (tint, area.getX(), area.getY(), tint == accent() ? mauve() : tint.darker (0.3f), area.getRight(), area.getBottom(), false);
         g.setGradientFill (grad);
         g.fillPath (shape);
-        g.setColour (juce::Colours::white.withAlpha (over ? 0.25f : 0.12f));
-        g.strokePath (shape, juce::PathStrokeType (1.0f));
+        g.setColour (juce::Colours::white.withAlpha (over ? 0.35f : 0.18f));
+        g.strokePath (shape, juce::PathStrokeType (0.6f));
     }
     else
     {
-        g.setGradientFill (juce::ColourGradient (juce::Colour (0xff1a2a31), 0.0f, area.getY(), juce::Colour (0xff121e24), 0.0f, area.getBottom(), false));
+        g.setGradientFill (juce::ColourGradient (juce::Colour (0xff3a5059), 0.0f, area.getY(), juce::Colour (0xff2e424a), 0.0f, area.getBottom(), false));
         g.fillPath (shape);
-        g.setColour (over ? tint.withAlpha (0.8f) : edge());
-        g.strokePath (shape, juce::PathStrokeType (1.0f));
+        g.setColour (over ? tint.withAlpha (0.9f) : edge());
+        g.strokePath (shape, juce::PathStrokeType (0.6f));
     }
 
     if (down)
@@ -177,9 +177,9 @@ void PhlickLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& b, 
 
 void PhlickLookAndFeel::drawPopupMenuBackground (juce::Graphics& g, int w, int h)
 {
-    g.fillAll (juce::Colour (0xff142229));
+    g.fillAll (juce::Colour (0xff24363e));
     g.setColour (edge());
-    g.drawRect (0, 0, w, h, 1);
+    g.drawRect (juce::Rectangle<float> (0.0f, 0.0f, (float) w, (float) h), 0.6f);
 }
 
 void PhlickLookAndFeel::drawPopupMenuItem (juce::Graphics& g, const juce::Rectangle<int>& area, bool isSeparator, bool isActive,
@@ -340,7 +340,7 @@ void GraphView::paint (juce::Graphics& g)
     const auto shape = L::chamfered (r, 8.0f);
 
     // Fond de l'écran
-    g.setGradientFill (juce::ColourGradient (juce::Colour (0xff0f1b20), 0.0f, r.getY(), L::screen(), 0.0f, r.getBottom(), false));
+    g.setGradientFill (juce::ColourGradient (juce::Colour (0xff1c2c34), 0.0f, r.getY(), L::screen(), 0.0f, r.getBottom(), false));
     g.fillPath (shape);
     g.saveState();
     g.reduceClipRegion (shape);
@@ -394,7 +394,7 @@ void GraphView::paint (juce::Graphics& g)
                                                  L::mauve().withAlpha (0.75f), 0.0f, edgeY + dir * r.getHeight() * 0.6f, false));
         g.fillPath (red);
         g.setColour (near);
-        g.strokePath (red, juce::PathStrokeType (1.2f));
+        g.strokePath (red, juce::PathStrokeType (0.8f));
     }
 
     // Échelle
@@ -421,9 +421,9 @@ void GraphView::paint (juce::Graphics& g)
         else        line.lineTo (x, y);
     }
     g.setColour (L::text().withAlpha (0.18f));
-    g.strokePath (line, juce::PathStrokeType (5.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    g.strokePath (line, juce::PathStrokeType (3.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
     g.setColour (L::text().withAlpha (0.92f));
-    g.strokePath (line, juce::PathStrokeType (1.6f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    g.strokePath (line, juce::PathStrokeType (1.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 
     // Nœuds
     for (int b = 0; b < P::numBands + 2; ++b)
@@ -444,20 +444,20 @@ void GraphView::paint (juce::Graphics& g)
             g.setColour (colour);
             g.fillEllipse (circle);
             g.setColour (juce::Colours::black.withAlpha (0.4f));
-            g.drawEllipse (circle, 1.0f);
+            g.drawEllipse (circle, 0.7f);
         }
         else
         {
             g.setColour (L::screen());
             g.fillEllipse (circle);
             g.setColour (colour);
-            g.drawEllipse (circle.reduced (0.6f), 1.6f);
+            g.drawEllipse (circle.reduced (0.6f), 1.0f);
         }
 
         if (processor.getBandListen() == b)
         {
             g.setColour (colour);
-            g.drawEllipse (circle.expanded (5.0f), 1.2f);
+            g.drawEllipse (circle.expanded (5.0f), 0.8f);
         }
 
         g.setColour (on ? juce::Colour (0xff0b1216) : colour);
@@ -483,7 +483,7 @@ void GraphView::paint (juce::Graphics& g)
     }
 
     g.setColour (L::edge());
-    g.strokePath (shape, juce::PathStrokeType (1.2f));
+    g.strokePath (shape, juce::PathStrokeType (0.7f));
 }
 
 void GraphView::mouseMove (const juce::MouseEvent& e)
@@ -1081,7 +1081,7 @@ void PhlickFacade::timerCallback()
 void PhlickFacade::paint (juce::Graphics& g)
 {
     // Fond
-    g.setGradientFill (juce::ColourGradient (juce::Colour (0xff111c22), 0.0f, 0.0f, L::ground(), 0.0f, (float) height, false));
+    g.setGradientFill (juce::ColourGradient (juce::Colour (0xff24343c), 0.0f, 0.0f, L::ground(), 0.0f, (float) height, false));
     g.fillAll();
 
     // En-tête
@@ -1136,7 +1136,7 @@ void PhlickFacade::paintOverChildren (juce::Graphics& g)
     g.setColour (L::screen());
     g.fillPath (screenShape);
     g.setColour (L::edge());
-    g.strokePath (screenShape, juce::PathStrokeType (1.0f));
+    g.strokePath (screenShape, juce::PathStrokeType (0.6f));
 
     g.setFont (lookAndFeel.font (9.0f, true, 0.2f));
     g.setColour (L::dim());
@@ -1155,7 +1155,7 @@ void PhlickFacade::paintOverChildren (juce::Graphics& g)
         g.setColour (L::dim());
         g.setFont (lookAndFeel.font (8.5f, true, 0.2f));
         g.drawText (i == 0 ? "IN" : "OUT", row.removeFromLeft (26.0f), juce::Justification::centredLeft, false);
-        g.setColour (juce::Colour (0xff101c22));
+        g.setColour (juce::Colour (0xff1e2e35));
         g.fillRect (row);
         const float level = i == 0 ? inLevel : outLevel;
         const float t = juce::jlimit (0.0f, 1.0f, (level + 60.0f) / 66.0f);
